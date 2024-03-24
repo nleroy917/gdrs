@@ -6,17 +6,6 @@ use std::path::Path;
 mod tests {
     use super::*;
 
-    // #[fixture]
-    // fn path_to_bed() -> Path {
-    //     Path::new("tests/test.bed")
-    // }
-
-    // #[fixture]
-    // fn region_set() -> RegionSet {
-    //     let path_to_bed = Path::new("tests/test.bed");
-    //     RegionSet::from_bed_file(path_to_bed).unwrap()
-    // }
-
     #[rstest]
     fn test_calc_neighnor_distances() {
         let mut region_set = RegionSet::from_bed_file(Path::new("tests/data/test.bed")).unwrap();

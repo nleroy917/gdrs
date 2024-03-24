@@ -9,7 +9,7 @@ use anyhow::Result;
 pub struct Region {
     pub chr: String,
     pub start: u32,
-    pub end: u32
+    pub end: u32,
 }
 
 impl PartialEq for Region {
@@ -19,14 +19,15 @@ impl PartialEq for Region {
 }
 
 pub struct RegionSet {
-    regions: HashMap<String, Vec<Region>>
+    regions: HashMap<String, Vec<Region>>,
+    sorted: bool
 }
 
 impl RegionSet {
-    fn from_bed_file(value: &Path) -> Result<RegionSet> {
+    pub fn from_bed_file(value: &Path) -> Result<RegionSet> {
 
         let file = File::open(value)?;
-        let mut reader = BufReader::new(file);
+        let reader = BufReader::new(file);
 
         let mut regions = HashMap::new();
 
@@ -40,15 +41,37 @@ impl RegionSet {
             let region = Region {
                 chr: chr.to_string(),
                 start,
-                end
+                end,
+                
             };
 
             regions.entry(chr.to_string()).or_insert(Vec::new()).push(region);
         }
 
         Ok(RegionSet {
-            regions
+            regions,
+            sorted: false
         })
-        
+    }
+
+    pub fn iter_choms(&self) -> impl Iterator<Item = &String> {
+        self.regions.keys()
+    }
+
+    pub fn iter_regions(&self, chr: &str) -> impl Iterator<Item = &Region> {
+        self.regions.get(chr).unwrap().iter()
+    }
+
+    pub fn sort(&mut self) {
+        for regions in self.regions.values_mut() {
+            regions.sort_by(|a, b| a.start.cmp(&b.start));
+        }
+
+        // set the sorted flag to true
+        self.sorted = true;
+    }
+
+    pub fn is_sorted(&self) -> bool {
+        self.sorted
     }
 }

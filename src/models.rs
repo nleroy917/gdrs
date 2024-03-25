@@ -24,7 +24,7 @@ pub struct RegionSet {
 }
 
 impl RegionSet {
-    pub fn from_bed_file(value: &Path) -> Result<RegionSet> {
+    pub fn from_bed(value: &Path) -> Result<RegionSet> {
         let file = File::open(value)?;
         let reader = BufReader::new(file);
 
@@ -55,7 +55,7 @@ impl RegionSet {
         })
     }
 
-    pub fn iter_choms(&self) -> impl Iterator<Item = &String> {
+    pub fn iter_chroms(&self) -> impl Iterator<Item = &String> {
         self.regions.keys()
     }
 
@@ -63,13 +63,17 @@ impl RegionSet {
         self.regions.get(chr).unwrap().iter()
     }
 
-    pub fn sort(&mut self) {
-        for regions in self.regions.values_mut() {
-            regions.sort_by(|a, b| a.start.cmp(&b.start));
+    pub fn into_sorted(self) -> RegionSet {
+        let mut regions = self.regions;
+        for region_vec in regions.values_mut() {
+            region_vec.sort_by(|a, b| a.start.cmp(&b.start));
         }
 
-        // set the sorted flag to true
-        self.sorted = true;
+        RegionSet {
+            regions,
+            sorted: true
+        }
+
     }
 
     pub fn is_sorted(&self) -> bool {

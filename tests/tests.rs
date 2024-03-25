@@ -8,7 +8,7 @@ mod tests {
 
     #[rstest]
     fn test_calc_neighbor_distances() {
-        let mut region_set = RegionSet::from_bed_file(Path::new("tests/data/test.bed")).unwrap();
+        let region_set = RegionSet::from_bed(Path::new("tests/data/test.bed")).unwrap();
         let actual = [
             202_684_741,
             32_120_636,
@@ -18,7 +18,7 @@ mod tests {
             105_011_571,
         ];
 
-        let distances = calc_neighbor_distances(&mut region_set).unwrap();
+        let distances = calc_neighbor_distances(&region_set).unwrap();
 
         // make sure that the distances are the same, doesnt matter in which order
         for distance in distances {

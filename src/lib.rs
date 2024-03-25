@@ -1,34 +1,30 @@
 use std::fs::File;
 use std::path::Path;
 
-use anyhow::Result;
+use anyhow::{Result, ensure};
 use bio::io::fasta;
 
 pub mod models;
 
 use models::RegionSet;
 
-pub fn calc_neighbor_distances(region_set: &mut RegionSet) -> Result<Vec<u32>> {
+pub fn calc_neighbor_distances(region_set: &RegionSet) -> Result<Vec<u32>> {
     // make sure that the regions are sorted
-    if !region_set.is_sorted() {
-        region_set.sort();
-    }
+    ensure!(region_set.is_sorted(), "RegionSet must be sorted to compute neighbor distances!");
 
     let mut distances = vec![];
 
     // iterate over all chromosomes
-    for chr in region_set.iter_choms() {
+    for chr in region_set.iter_chroms() {
+        
         // if there is only one region on the chromosome, skip it, can't calculate distance between one region
         if region_set.iter_regions(chr).count() < 2 {
             continue;
         }
 
-        for i in 0..region_set.iter_regions(chr).count() - 1 {
-            let region = region_set.iter_regions(chr).nth(i).unwrap();
-            let next_region = region_set.iter_regions(chr).nth(i + 1).unwrap();
-
-            let distance = next_region.start - region.end;
-
+        let regions: Vec<_> = region_set.iter_regions(chr).collect();
+        for window in regions.windows(2) {
+            let distance = window[1].start - window[0].end;
             distances.push(distance);
         }
     }

@@ -66,8 +66,16 @@ fn main() {
                     let entry = entry.unwrap();
                     
                     let path = entry.as_path();
-                    let rs = RegionSet::from_bed(path).unwrap().into_sorted();
-                    let _distances = calc_neighbor_distances(&rs).unwrap();
+                    let rs = RegionSet::from_bed(path);
+
+                    match rs {
+                        Ok(rs) => {
+                            let _distances = calc_neighbor_distances(&rs.into_sorted()).unwrap();
+                        }
+                        Err(e) => {
+                            eprintln!("Error reading file: {:?}... skipping", path);
+                        }
+                    }
                     
                     progress_bar.inc(1);
                 }

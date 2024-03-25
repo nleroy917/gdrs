@@ -1,8 +1,11 @@
 use std::collections::HashMap;
+use std::ffi::OsStr;
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::BufReader;
 use std::path::Path;
+
+use flate2::read::GzDecoder;
 
 use anyhow::Result;
 
@@ -25,7 +28,14 @@ pub struct RegionSet {
 
 impl RegionSet {
     pub fn from_bed(value: &Path) -> Result<RegionSet> {
+        let is_gzipped = value.extension() == Some(OsStr::new("gz"));
         let file = File::open(value)?;
+        
+        let file: Box<dyn Read> = match is_gzipped {
+            true => Box::new(GzDecoder::new(file)),
+            false => Box::new(file),
+        };
+
         let reader = BufReader::new(file);
 
         let mut regions = HashMap::new();
@@ -71,9 +81,8 @@ impl RegionSet {
 
         RegionSet {
             regions,
-            sorted: true
+            sorted: true,
         }
-
     }
 
     pub fn is_sorted(&self) -> bool {

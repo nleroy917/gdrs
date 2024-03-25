@@ -15,16 +15,14 @@ mod tests {
             3_824_685,
             43_450_165,
             714_607,
-            105_011_571
+            105_011_571,
         ];
 
         let distances = calc_neighbor_distances(&mut region_set).unwrap();
-        
+
         // make sure that the distances are the same, doesnt matter in which order
         for distance in distances {
             assert!(actual.contains(&distance));
         }
-        
     }
-    
 }

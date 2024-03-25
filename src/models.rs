@@ -1,8 +1,8 @@
 use std::collections::HashMap;
-use std::path::Path;
+use std::fs::File;
 use std::io::prelude::*;
 use std::io::BufReader;
-use std::fs::File;
+use std::path::Path;
 
 use anyhow::Result;
 
@@ -20,12 +20,11 @@ impl PartialEq for Region {
 
 pub struct RegionSet {
     regions: HashMap<String, Vec<Region>>,
-    sorted: bool
+    sorted: bool,
 }
 
 impl RegionSet {
     pub fn from_bed_file(value: &Path) -> Result<RegionSet> {
-
         let file = File::open(value)?;
         let reader = BufReader::new(file);
 
@@ -42,15 +41,17 @@ impl RegionSet {
                 chr: chr.to_string(),
                 start,
                 end,
-                
             };
 
-            regions.entry(chr.to_string()).or_insert(Vec::new()).push(region);
+            regions
+                .entry(chr.to_string())
+                .or_insert(Vec::new())
+                .push(region);
         }
 
         Ok(RegionSet {
             regions,
-            sorted: false
+            sorted: false,
         })
     }
 

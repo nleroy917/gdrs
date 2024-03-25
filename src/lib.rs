@@ -1,5 +1,5 @@
-use std::path::Path;
 use std::fs::File;
+use std::path::Path;
 
 use anyhow::Result;
 use bio::io::fasta;
@@ -9,7 +9,6 @@ pub mod models;
 use models::RegionSet;
 
 pub fn calc_neighbor_distances(region_set: &mut RegionSet) -> Result<Vec<u32>> {
-    
     // make sure that the regions are sorted
     if !region_set.is_sorted() {
         region_set.sort();
@@ -31,15 +30,13 @@ pub fn calc_neighbor_distances(region_set: &mut RegionSet) -> Result<Vec<u32>> {
             let distance = next_region.start - region.end;
 
             distances.push(distance);
-            
-        } 
+        }
     }
 
     Ok(distances)
 }
 
 pub fn gc_content(region_set: &RegionSet, genome: &Path) -> Result<f64> {
-
     let mut gc_count: u32 = 0;
     let mut total_count: u32 = 0;
 
@@ -50,19 +47,17 @@ pub fn gc_content(region_set: &RegionSet, genome: &Path) -> Result<f64> {
     let records = genome.records();
 
     // for region in region_set
-    
-        // get sequence from chr:start-end
 
-        // count num Gs and num Cs, increment gc_count
+    // get sequence from chr:start-end
 
-        // increment total count
-    
+    // count num Gs and num Cs, increment gc_count
 
+    // increment total count
 
     Ok(gc_count as f64 / total_count as f64)
 }
 
 pub mod prelude {
-    pub use super::models::{Region, RegionSet};
     pub use super::calc_neighbor_distances;
+    pub use super::models::{Region, RegionSet};
 }

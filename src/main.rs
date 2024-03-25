@@ -50,7 +50,7 @@ fn main() {
                     .expect("Failed to read glob pattern")
                     .count() as u64;
 
-                let files = glob(&format!("{}/*.bed", path_to_data.to_str().unwrap()))
+                let files = glob(&format!("{}/*.bed*", path_to_data.to_str().unwrap()))
                     .expect("Failed to read glob pattern");
                 
                 let progress_bar = ProgressBar::new(n_files);
@@ -64,9 +64,11 @@ fn main() {
 
                 for entry in files {
                     let entry = entry.unwrap();
+                    
                     let path = entry.as_path();
                     let rs = RegionSet::from_bed(path).unwrap().into_sorted();
-                    let distances = calc_neighbor_distances(&rs).unwrap();
+                    let _distances = calc_neighbor_distances(&rs).unwrap();
+                    
                     progress_bar.inc(1);
                 }
 
@@ -75,6 +77,7 @@ fn main() {
                 let rs = RegionSet::from_bed(path_to_data).unwrap().into_sorted();
                 let _distances = calc_neighbor_distances(&rs).unwrap();
             }
+            println!("Done.")
         }
         _ => unreachable!("Subcommand not found"),
     }

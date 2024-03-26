@@ -1,5 +1,7 @@
 use glob::glob;
+use std::io::Write;
 use std::path::Path;
+use std::io::stdout;
 
 use clap::{arg, Command};
 use indicatif::{ProgressBar, ProgressStyle};
@@ -62,6 +64,7 @@ fn main() {
                     .progress_chars("##-"),
                 );
 
+
                 for entry in files {
                     let entry = entry.unwrap();
                     
@@ -70,9 +73,18 @@ fn main() {
 
                     match rs {
                         Ok(rs) => {
-                            let _distances = calc_neighbor_distances(&rs.into_sorted()).unwrap();
+                            
+                            let distances = calc_neighbor_distances(&rs.into_sorted()).unwrap();
+
+                            let stdout = stdout();
+                            let mut handle = stdout.lock();
+                            
+                            for dist in distances {
+                                // write to stdout
+                                handle.write_all(format!("{}\n", dist).as_bytes()).unwrap();
+                            }
                         }
-                        Err(e) => {
+                        Err(_e) => {
                             eprintln!("Error reading file: {:?}... skipping", path);
                         }
                     }
@@ -83,9 +95,17 @@ fn main() {
             // else assume its a bed file
             } else {
                 let rs = RegionSet::from_bed(path_to_data).unwrap().into_sorted();
-                let _distances = calc_neighbor_distances(&rs).unwrap();
+
+                let stdout = stdout();
+                let mut handle = stdout.lock();
+
+                let distances = calc_neighbor_distances(&rs).unwrap();
+
+                for dist in distances {
+                    // write to stdout
+                    handle.write_all(format!("{}\n", dist).as_bytes()).unwrap();
+                }
             }
-            println!("Done.")
         }
         _ => unreachable!("Subcommand not found"),
     }

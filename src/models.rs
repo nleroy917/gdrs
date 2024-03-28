@@ -6,9 +6,9 @@ use std::io::BufReader;
 use std::path::Path;
 
 use anyhow::ensure;
-use flate2::read::GzDecoder;
-
 use anyhow::Result;
+use bio::io::fasta;
+use flate2::read::GzDecoder;
 
 pub struct Region {
     pub chr: String,
@@ -91,5 +91,54 @@ impl RegionSet {
 
     pub fn is_sorted(&self) -> bool {
         self.sorted
+    }
+}
+
+pub struct GenomeAssembly {
+    seq_map: HashMap<String, Vec<u8>>,
+}
+
+impl GenomeAssembly {
+    pub fn from_fasta(path: &Path) -> Result<GenomeAssembly> {
+        let file = File::open(path)?;
+        let genome = fasta::Reader::new(file);
+
+        let records = genome.records();
+
+        // store the genome in a hashmap
+        let mut seq_map: HashMap<String, Vec<u8>> = HashMap::new();
+        for record in records {
+            match record {
+                Ok(record) => {
+                    seq_map.insert(record.id().to_string(), record.seq().to_owned());
+                }
+                Err(e) => {
+                    return Err(anyhow::anyhow!("Error reading genome file: {}", e));
+                }
+            }
+        }
+
+        Ok(GenomeAssembly { seq_map })
+    }
+
+    pub fn seq_from_region<'a>(&'a self, coords: &Region) -> Result<&'a [u8]> {
+        let chr = &coords.chr;
+        let start = coords.start;
+        let end = coords.end;
+
+        let seq = self.seq_map.get(chr);
+
+        match seq {
+            Some(seq) => {
+                let seq = &seq[start as usize..end as usize];
+                Ok(seq)
+            }
+            None => {
+                Err(anyhow::anyhow!(
+                    "Unknown chromosome found in region set: {}",
+                    chr.to_string()
+                ))
+            }
+        }
     }
 }

@@ -1,13 +1,13 @@
+use std::collections::HashMap;
 use std::fs::File;
 use std::path::Path;
-use std::collections::HashMap;
 
 use anyhow::{ensure, Result};
 use bio::io::fasta;
 
 pub mod models;
 
-use models::RegionSet;
+use models::{GenomeAssembly, RegionSet};
 
 pub fn calc_neighbor_distances(region_set: &RegionSet) -> Result<Vec<u32>> {
     // make sure that the regions are sorted
@@ -35,39 +35,16 @@ pub fn calc_neighbor_distances(region_set: &RegionSet) -> Result<Vec<u32>> {
     Ok(distances)
 }
 
-pub fn calc_gc_content(region_set: &RegionSet, genome: &Path) -> Result<f64> {
+pub fn calc_gc_content(region_set: &RegionSet, genome: &GenomeAssembly) -> Result<f64> {
     let mut gc_count: u32 = 0;
     let mut total_count: u32 = 0;
-
-    // open the genome file
-    let file = File::open(genome)?;
-    let genome = fasta::Reader::new(file);
-
-    let records = genome.records();
-
-    // store the genome in a hashmap
-    let mut genome_seq_map: HashMap<String, Vec<u8>> = HashMap::new();
-    for record in records {
-        match record {
-            Ok(record) => {
-                genome_seq_map.insert(record.id().to_string(), record.seq().to_owned());
-            }
-            Err(e) => {
-                return Err(anyhow::anyhow!("Error reading genome file: {}", e));
-            }
-        }
-    }
 
     // for region in region_set
     for chr in region_set.iter_chroms() {
         for region in region_set.iter_regions(chr) {
-            let start = region.start;
-            let end = region.end;
-
-            let seq = genome_seq_map.get(chr);
+            let seq = genome.seq_from_region(&region);
             match seq {
-                Some(seq) => {
-                    let seq = &seq[start as usize..end as usize];
+                Ok(seq) => {                    
                     for base in seq {
                         match base.to_ascii_lowercase() {
                             b'g' | b'c' => {
@@ -77,9 +54,15 @@ pub fn calc_gc_content(region_set: &RegionSet, genome: &Path) -> Result<f64> {
                         }
                         total_count += 1;
                     }
-                },
-                None => {
-                    return Err(anyhow::anyhow!("Unknown chromosome found in region set: {}", chr.to_string()));
+                }
+                Err(e) => {
+                    return Err(anyhow::anyhow!(
+                        "Error getting sequence for region {}:{}-{}: {}",
+                        region.chr.to_string(),
+                        region.start,
+                        region.end,
+                        e
+                    ));
                 }
             }
         }

@@ -5,6 +5,8 @@ use std::path::Path;
 
 mod tests {
 
+    use gdrs::models::GenomeAssembly;
+
     use super::*;
 
     #[rstest]
@@ -53,10 +55,11 @@ mod tests {
 
     #[rstest]
     fn test_gc_content() {
-        let region_set = RegionSet::from_bed(Path::new("tests/data/test.bed.gz"))
-            .unwrap();
+        let region_set = RegionSet::from_bed(Path::new("tests/data/test.bed.gz")).unwrap();
         let genome = Path::new("/Users/nathanleroy/genomes/hg38/hg38.fa");
-        let gc_content = calc_gc_content(&region_set, genome).unwrap();
+        let genome = GenomeAssembly::from_fasta(genome).unwrap();
+
+        let gc_content = calc_gc_content(&region_set, &genome).unwrap();
 
         assert!(gc_content >= 0.0);
     }

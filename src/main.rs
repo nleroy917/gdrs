@@ -1,4 +1,5 @@
 use gdrs::calc_gc_content;
+use gdrs::models::GenomeAssembly;
 use glob::glob;
 use std::io::stdout;
 use std::io::Write;
@@ -126,8 +127,9 @@ fn main() {
 
             let region_set = RegionSet::from_bed(Path::new(path_to_data)).unwrap();
             let genome = Path::new(genome);
+            let genome = GenomeAssembly::from_fasta(genome).unwrap();
 
-            let gc_content = calc_gc_content(&region_set, genome).unwrap();
+            let gc_content = calc_gc_content(&region_set, &genome).unwrap();
 
             println!("{}", gc_content)
         }

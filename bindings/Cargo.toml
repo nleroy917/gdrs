@@ -9,5 +9,6 @@ name = "gdrs"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = "0.20.0"
+pyo3 = { version = "0.21.0", features = ["anyhow"] }
 gdrs = { path = "../"}
+anyhow = "1.0.81"

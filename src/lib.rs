@@ -1,9 +1,4 @@
-use std::collections::HashMap;
-use std::fs::File;
-use std::path::Path;
-
 use anyhow::{ensure, Result};
-use bio::io::fasta;
 
 pub mod models;
 
@@ -41,6 +36,7 @@ pub fn calc_gc_content(region_set: &RegionSet, genome: &GenomeAssembly) -> Resul
 
     // for region in region_set
     for chr in region_set.iter_chroms() {
+        
         for region in region_set.iter_regions(chr) {
             let seq = genome.seq_from_region(region);
             match seq {
@@ -74,5 +70,5 @@ pub fn calc_gc_content(region_set: &RegionSet, genome: &GenomeAssembly) -> Resul
 pub mod prelude {
     pub use super::calc_gc_content;
     pub use super::calc_neighbor_distances;
-    pub use super::models::{Region, RegionSet};
+    pub use super::models::{Region, RegionSet, GenomeAssembly};
 }

@@ -1,5 +1,8 @@
 {
     "cSpell.words": [
         "gdrs"
+    ],
+    "rust-analyzer.linkedProjects": [
+        "./bindings/Cargo.toml"
     ]
 }

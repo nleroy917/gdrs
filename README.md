@@ -6,7 +6,7 @@ Ideally, we would like to implement all the features of the original package. Ho
 
 - [ ] Chromosome distribution
 - [x] Neighbor distances
-- [ ] GC content
+- [x] GC content
 - [ ] Partition calculations
 - [ ] Cumulative partition calculations
 - [ ] Distance to TSS

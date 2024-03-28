@@ -1,8 +1,9 @@
-// use std::fs::File;
-// use std::path::Path;
+use std::fs::File;
+use std::path::Path;
+use std::collections::HashMap;
 
 use anyhow::{ensure, Result};
-// use bio::io::fasta;
+use bio::io::fasta;
 
 pub mod models;
 
@@ -34,28 +35,61 @@ pub fn calc_neighbor_distances(region_set: &RegionSet) -> Result<Vec<u32>> {
     Ok(distances)
 }
 
-// pub fn gc_content(region_set: &RegionSet, genome: &Path) -> Result<f64> {
-//     let mut gc_count: u32 = 0;
-//     let mut total_count: u32 = 0;
+pub fn calc_gc_content(region_set: &RegionSet, genome: &Path) -> Result<f64> {
+    let mut gc_count: u32 = 0;
+    let mut total_count: u32 = 0;
 
-//     // open the genome file
-//     let file = File::open(genome)?;
-//     let genome = fasta::Reader::new(file);
+    // open the genome file
+    let file = File::open(genome)?;
+    let genome = fasta::Reader::new(file);
 
-//     let records = genome.records();
+    let records = genome.records();
 
-//     // for region in region_set
+    // store the genome in a hashmap
+    let mut genome_seq_map: HashMap<String, Vec<u8>> = HashMap::new();
+    for record in records {
+        match record {
+            Ok(record) => {
+                genome_seq_map.insert(record.id().to_string(), record.seq().to_owned());
+            }
+            Err(e) => {
+                return Err(anyhow::anyhow!("Error reading genome file: {}", e));
+            }
+        }
+    }
 
-//     // get sequence from chr:start-end
+    // for region in region_set
+    for chr in region_set.iter_chroms() {
+        for region in region_set.iter_regions(chr) {
+            let start = region.start;
+            let end = region.end;
 
-//     // count num Gs and num Cs, increment gc_count
+            let seq = genome_seq_map.get(chr);
+            match seq {
+                Some(seq) => {
+                    let seq = &seq[start as usize..end as usize];
+                    for base in seq {
+                        match base.to_ascii_lowercase() {
+                            b'g' | b'c' => {
+                                gc_count += 1;
+                            }
+                            _ => {}
+                        }
+                        total_count += 1;
+                    }
+                },
+                None => {
+                    return Err(anyhow::anyhow!("Unknown chromosome found in region set: {}", chr.to_string()));
+                }
+            }
+        }
+    }
 
-//     // increment total count
-
-//     Ok(gc_count as f64 / total_count as f64)
-// }
+    Ok(gc_count as f64 / total_count as f64)
+}
 
 pub mod prelude {
+    pub use super::calc_gc_content;
     pub use super::calc_neighbor_distances;
     pub use super::models::{Region, RegionSet};
 }

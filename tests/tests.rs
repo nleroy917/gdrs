@@ -4,11 +4,14 @@ use rstest::*;
 use std::path::Path;
 
 mod tests {
+
     use super::*;
 
     #[rstest]
     fn test_calc_neighbor_distances() {
-        let region_set = RegionSet::from_bed(Path::new("tests/data/test.bed")).unwrap().into_sorted();
+        let region_set = RegionSet::from_bed(Path::new("tests/data/test.bed"))
+            .unwrap()
+            .into_sorted();
         let actual = [
             202_684_741,
             32_120_636,
@@ -28,7 +31,9 @@ mod tests {
 
     #[rstest]
     fn test_calc_neighbor_distances_zipped() {
-        let region_set = RegionSet::from_bed(Path::new("tests/data/test.bed.gz")).unwrap().into_sorted();
+        let region_set = RegionSet::from_bed(Path::new("tests/data/test.bed.gz"))
+            .unwrap()
+            .into_sorted();
         let actual = [
             202_684_741,
             32_120_636,
@@ -44,5 +49,15 @@ mod tests {
         for distance in distances {
             assert!(actual.contains(&distance));
         }
+    }
+
+    #[rstest]
+    fn test_gc_content() {
+        let region_set = RegionSet::from_bed(Path::new("tests/data/test.bed.gz"))
+            .unwrap();
+        let genome = Path::new("/Users/nathanleroy/genomes/hg38/hg38.fa");
+        let gc_content = calc_gc_content(&region_set, genome).unwrap();
+
+        assert!(gc_content >= 0.0);
     }
 }

@@ -31,7 +31,7 @@ impl RegionSet {
     pub fn from_bed(value: &Path) -> Result<RegionSet> {
         let is_gzipped = value.extension() == Some(OsStr::new("gz"));
         let file = File::open(value)?;
-        
+
         let file: Box<dyn Read> = match is_gzipped {
             true => Box::new(GzDecoder::new(file)),
             false => Box::new(file),
@@ -44,9 +44,9 @@ impl RegionSet {
         for line in reader.lines() {
             let line = line?;
             let fields = line.split('\t').collect::<Vec<&str>>();
-            
+
             ensure!(fields.len() >= 3, "Invalid BED file format!");
-            
+
             let chr = fields[0];
             let start = fields[1].parse::<u32>()?;
             let end = fields[2].parse::<u32>()?;

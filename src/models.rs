@@ -133,12 +133,10 @@ impl GenomeAssembly {
                 let seq = &seq[start as usize..end as usize];
                 Ok(seq)
             }
-            None => {
-                Err(anyhow::anyhow!(
-                    "Unknown chromosome found in region set: {}",
-                    chr.to_string()
-                ))
-            }
+            None => Err(anyhow::anyhow!(
+                "Unknown chromosome found in region set: {}",
+                chr.to_string()
+            )),
         }
     }
 }

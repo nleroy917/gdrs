@@ -42,9 +42,9 @@ pub fn calc_gc_content(region_set: &RegionSet, genome: &GenomeAssembly) -> Resul
     // for region in region_set
     for chr in region_set.iter_chroms() {
         for region in region_set.iter_regions(chr) {
-            let seq = genome.seq_from_region(&region);
+            let seq = genome.seq_from_region(region);
             match seq {
-                Ok(seq) => {                    
+                Ok(seq) => {
                     for base in seq {
                         match base.to_ascii_lowercase() {
                             b'g' | b'c' => {

@@ -3,6 +3,7 @@
         "gdrs"
     ],
     "rust-analyzer.linkedProjects": [
-        "./bindings/Cargo.toml"
+        "./bindings/Cargo.toml",
+        "./gdrs/Cargo.toml"
     ]
 }

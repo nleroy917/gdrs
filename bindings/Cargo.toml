@@ -10,5 +10,5 @@ crate-type = ["cdylib"]
 
 [dependencies]
 pyo3 = { version = "0.21.0", features = ["anyhow"] }
-gdrs = { path = "../"}
+gdrs = { path = "../gdrs"}
 anyhow = "1.0.81"

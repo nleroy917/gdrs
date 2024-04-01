@@ -45,7 +45,10 @@ impl RegionSet {
             let line = line?;
             let fields = line.split('\t').collect::<Vec<&str>>();
 
-            ensure!(fields.len() >= 3, "Invalid BED file format!");
+            ensure!(
+                fields.len() >= 3,
+                "Invalid BED file format found. File lacks the three necessary columns."
+            );
 
             let chr = fields[0];
             let start = fields[1].parse::<u32>()?;
@@ -137,6 +140,50 @@ impl GenomeAssembly {
                 "Unknown chromosome found in region set: {}",
                 chr.to_string()
             )),
+        }
+    }
+}
+
+#[derive(PartialEq, Eq, Hash)]
+pub enum Dinucleotide {
+    Aa,
+    Ac,
+    Ag,
+    At,
+    Ca,
+    Cc,
+    Cg,
+    Ct,
+    Ga,
+    Gc,
+    Gg,
+    Gt,
+    Ta,
+    Tc,
+    Tg,
+    Tt,
+}
+
+impl Dinucleotide {
+    pub fn from_bytes(bytes: &[u8]) -> Option<Dinucleotide> {
+        match bytes {
+            b"Aa" => Some(Dinucleotide::Aa),
+            b"Ac" => Some(Dinucleotide::Ac),
+            b"Ag" => Some(Dinucleotide::Ag),
+            b"At" => Some(Dinucleotide::At),
+            b"Ca" => Some(Dinucleotide::Ca),
+            b"Cc" => Some(Dinucleotide::Cc),
+            b"Cg" => Some(Dinucleotide::Cg),
+            b"Ct" => Some(Dinucleotide::Ct),
+            b"Ga" => Some(Dinucleotide::Ga),
+            b"Gc" => Some(Dinucleotide::Gc),
+            b"Gg" => Some(Dinucleotide::Gg),
+            b"Gt" => Some(Dinucleotide::Gt),
+            b"Ta" => Some(Dinucleotide::Ta),
+            b"Tc" => Some(Dinucleotide::Tc),
+            b"Tg" => Some(Dinucleotide::Tg),
+            b"Tt" => Some(Dinucleotide::Tt),
+            _ => None,
         }
     }
 }

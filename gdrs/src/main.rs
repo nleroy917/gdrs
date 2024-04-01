@@ -1,4 +1,4 @@
-use anyhow::{ensure, Result};
+use anyhow::{ensure, Context, Result};
 use gdrs::models::GenomeAssembly;
 use gdrs::prelude::*;
 use gdrs::{calc_gc_content, calc_neighbor_distances};
@@ -43,8 +43,13 @@ fn build_parser() -> Command {
 }
 
 fn main() -> Result<()> {
+    // parse the cli
     let app = build_parser();
     let matches = app.get_matches();
+
+    // build handler for stdout
+    let stdout = stdout();
+    let mut handle = stdout.lock();
 
     match matches.subcommand() {
         Some((consts::ND_CMD, matches)) => {
@@ -59,12 +64,17 @@ fn main() -> Result<()> {
                 "Please provide a path to a file, not a directory"
             );
 
-            let rs = RegionSet::from_bed(path_to_data).unwrap().into_sorted();
+            let rs = RegionSet::from_bed(path_to_data)
+                .with_context(|| {
+                    format!(
+                        "Failed to parse bedfile: '{}'",
+                        path_to_data.to_string_lossy()
+                    )
+                })?
+                .into_sorted();
 
-            let stdout = stdout();
-            let mut handle = stdout.lock();
-
-            let distances = calc_neighbor_distances(&rs).unwrap();
+            let distances = calc_neighbor_distances(&rs)
+                .with_context(|| "Error calculating neighbor distances")?;
 
             for dist in distances {
                 // write to stdout
@@ -75,6 +85,7 @@ fn main() -> Result<()> {
         }
 
         Some((consts::GC_CMD, matches)) => {
+            // parse cli matches
             let path_to_data = matches
                 .get_one::<String>("path")
                 .expect("Path to data is required.");
@@ -82,11 +93,21 @@ fn main() -> Result<()> {
                 .get_one::<String>("genome")
                 .expect("Please specify a genome assembly file");
 
-            let region_set = RegionSet::from_bed(Path::new(path_to_data)).unwrap();
-            let genome = Path::new(genome);
-            let genome = GenomeAssembly::from_fasta(genome).unwrap();
+            // parse given region set
+            let region_set = RegionSet::from_bed(Path::new(path_to_data))
+                .with_context(|| format!("Failed to parse bedfile: '{}'", path_to_data))?;
 
+            // read in the genome file
+            let genome = Path::new(genome);
+            let genome = GenomeAssembly::from_fasta(genome).with_context(|| {
+                format!("Error reading genome file: '{}'", genome.to_string_lossy())
+            })?;
+
+            // compute gc content
             let gc_content = calc_gc_content(&region_set, &genome).unwrap();
+
+            // dump to std-out
+            handle.write_all(format!("{}\n", gc_content).as_bytes())?;
 
             Ok(())
         }

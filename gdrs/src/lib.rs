@@ -1,8 +1,11 @@
+use std::collections::HashMap;
+
 use anyhow::{ensure, Result};
 
 pub mod models;
 
-use models::{GenomeAssembly, RegionSet};
+use models::{Dinucleotide, GenomeAssembly, RegionSet};
+use prelude::Region;
 
 pub fn calc_neighbor_distances(region_set: &RegionSet) -> Result<Vec<u32>> {
     // make sure that the regions are sorted
@@ -64,6 +67,41 @@ pub fn calc_gc_content(region_set: &RegionSet, genome: &GenomeAssembly) -> Resul
     }
 
     Ok(gc_count as f64 / total_count as f64)
+}
+
+pub fn calc_widths(region_set: &RegionSet) -> Result<Vec<u32>> {
+    let mut widths: Vec<u32> = Vec::new();
+    for chr in region_set.iter_chroms() {
+        for region in region_set.iter_regions(chr) {
+            widths.push(region.end - region.start)
+        }
+    }
+    Ok(widths)
+}
+
+pub fn calc_dinucl_freq(
+    region_set: &RegionSet,
+    genome: &GenomeAssembly,
+) -> Result<HashMap<Dinucleotide, f64>> {
+    let mut dinucl_freqs: HashMap<Dinucleotide, f64> = HashMap::new();
+
+    for chr in region_set.iter_chroms() {
+        for region in region_set.iter_regions(chr) {
+            let seq = genome.seq_from_region(region)?;
+            for aas in seq.windows(2) {
+                let diucl = Dinucleotide::from_bytes(aas);
+                match diucl {
+                    Some(dinucl) => {
+                        let current_freq = dinucl_freqs.entry(dinucl).or_insert(0.0);
+                        *current_freq += 1.0;
+                    }
+                    None => continue,
+                }
+            }
+        }
+    }
+
+    Ok(dinucl_freqs)
 }
 
 pub mod prelude {

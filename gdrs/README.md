@@ -10,7 +10,7 @@ Ideally, we would like to implement all the features of the original package. Ho
 - [ ] Partition calculations
 - [ ] Cumulative partition calculations
 - [ ] Distance to TSS
-- [ ] Dinucleotide frequency
+- [x] Dinucleotide frequency
 
 ## Installation
 ```bash

@@ -5,7 +5,6 @@ use anyhow::{ensure, Result};
 pub mod models;
 
 use models::{Dinucleotide, GenomeAssembly, RegionSet};
-use prelude::Region;
 
 pub fn calc_neighbor_distances(region_set: &RegionSet) -> Result<Vec<u32>> {
     // make sure that the regions are sorted
@@ -83,6 +82,7 @@ pub fn calc_dinucl_freq(
     region_set: &RegionSet,
     genome: &GenomeAssembly,
 ) -> Result<HashMap<Dinucleotide, f64>> {
+
     let mut dinucl_freqs: HashMap<Dinucleotide, f64> = HashMap::new();
 
     for chr in region_set.iter_chroms() {

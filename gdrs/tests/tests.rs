@@ -5,7 +5,7 @@ use std::path::Path;
 
 mod tests {
 
-    use gdrs::models::GenomeAssembly;
+    use gdrs::{calc_dinucl_freq, models::GenomeAssembly};
 
     use super::*;
 
@@ -62,5 +62,20 @@ mod tests {
         let gc_content = calc_gc_content(&region_set, &genome).unwrap();
 
         assert!(gc_content >= 0.0);
+    }
+
+    #[rstest]
+    fn test_dinucleotide_freq() {
+        let region_set = RegionSet::from_bed(Path::new("tests/data/test.bed.gz")).unwrap();
+        let genome = Path::new("/Users/nathanleroy/genomes/hg38/hg38.fa");
+        let genome = GenomeAssembly::from_fasta(genome).unwrap();
+
+        let freqs = calc_dinucl_freq(&region_set, &genome);
+        assert!(freqs.is_ok());
+        let freqs = freqs.unwrap();
+        for (_di, freq) in freqs {
+            assert!(freq >= 0.0);
+        }
+
     }
 }

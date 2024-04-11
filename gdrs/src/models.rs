@@ -9,7 +9,9 @@ use anyhow::ensure;
 use anyhow::Result;
 use bio::io::fasta;
 use flate2::read::GzDecoder;
+use rust_lapper::Lapper;
 
+#[derive(Eq, Clone)]
 pub struct Region {
     pub chr: String,
     pub start: u32,
@@ -94,6 +96,14 @@ impl RegionSet {
 
     pub fn is_sorted(&self) -> bool {
         self.sorted
+    }
+
+    pub fn len(&self) -> usize {
+        self.regions.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.regions.is_empty()
     }
 }
 
@@ -205,6 +215,33 @@ impl Dinucleotide {
             Dinucleotide::Tc => Ok("Tc".to_string()),
             Dinucleotide::Tg => Ok("Tg".to_string()),
             Dinucleotide::Tt => Ok("Tt".to_string()),
+        }
+    }
+}
+
+pub struct TSSIndex {
+    tree: HashMap<String, Lapper<u32, Vec<Region>>>
+}
+
+impl TSSIndex {
+    // TODO: this needs to return a reference to the TSS... it will be a LOT faster than cloning each time. Requires lifetimes, but thats ok
+    pub fn query(&self, region: &Region) -> Option<Vec<Region>> {
+        let chr = &region.chr;
+        let chr_tree = self.tree.get(chr);
+
+        match chr_tree {
+            None => None, // our index doesnt have that chromosome they gave us
+            Some(tree) => {
+                let mut tss_list: Vec<Region> = Vec::new();
+                let hits = tree.find(region.start, region.end);
+                
+                for hit in hits {
+                    for tss in &hit.val {
+                        tss_list.push(tss.clone());
+                    }
+                }
+                Some(tss_list)
+            }
         }
     }
 }

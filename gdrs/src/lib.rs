@@ -103,6 +103,12 @@ pub fn calc_dinucl_freq(
     Ok(dinucl_freqs)
 }
 
+pub fn calc_tss_dist(
+    _region_set: &RegionSet
+) -> Result<()> {
+    Ok(())
+}
+
 pub mod prelude {
     pub use super::calc_gc_content;
     pub use super::calc_neighbor_distances;

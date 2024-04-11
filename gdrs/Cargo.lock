@@ -441,6 +441,7 @@ dependencies = [
  "clap",
  "flate2",
  "rstest",
+ "rust-lapper",
 ]
 
 [[package]]
@@ -853,6 +854,15 @@ dependencies = [
  "rustc_version 0.4.0",
  "syn 2.0.55",
  "unicode-ident",
+]
+
+[[package]]
+name = "rust-lapper"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ee43d8e721ac803031dbab6a944b957b49a3b11eadbc099880c8aaaebf23ed27"
+dependencies = [
+ "num-traits",
 ]
 
 [[package]]

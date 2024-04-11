@@ -82,7 +82,6 @@ pub fn calc_dinucl_freq(
     region_set: &RegionSet,
     genome: &GenomeAssembly,
 ) -> Result<HashMap<Dinucleotide, f64>> {
-
     let mut dinucl_freqs: HashMap<Dinucleotide, f64> = HashMap::new();
 
     for chr in region_set.iter_chroms() {

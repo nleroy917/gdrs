@@ -186,4 +186,25 @@ impl Dinucleotide {
             _ => None,
         }
     }
+
+    pub fn to_string(&self) -> Result<String> {
+        match self {
+            Dinucleotide::Aa => Ok("Aa".to_string()),
+            Dinucleotide::Ac => Ok("Ac".to_string()),
+            Dinucleotide::Ag => Ok("Ag".to_string()),
+            Dinucleotide::At => Ok("At".to_string()),
+            Dinucleotide::Ca => Ok("Ca".to_string()),
+            Dinucleotide::Cc => Ok("Cc".to_string()),
+            Dinucleotide::Cg => Ok("Cg".to_string()),
+            Dinucleotide::Ct => Ok("Ct".to_string()),
+            Dinucleotide::Ga => Ok("Ga".to_string()),
+            Dinucleotide::Gc => Ok("Gc".to_string()),
+            Dinucleotide::Gg => Ok("Gg".to_string()),
+            Dinucleotide::Gt => Ok("Gt".to_string()),
+            Dinucleotide::Ta => Ok("Ta".to_string()),
+            Dinucleotide::Tc => Ok("Tc".to_string()),
+            Dinucleotide::Tg => Ok("Tg".to_string()),
+            Dinucleotide::Tt => Ok("Tt".to_string()),
+        }
+    }
 }

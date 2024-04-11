@@ -76,6 +76,5 @@ mod tests {
         for (_di, freq) in freqs {
             assert!(freq >= 0.0);
         }
-
     }
 }

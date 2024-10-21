@@ -107,7 +107,7 @@ fn main() -> Result<()> {
             let gc_content = calc_gc_content(&region_set, &genome).unwrap();
 
             // dump to std-out
-            handle.write_all(format!("{}\n", gc_content).as_bytes())?;
+            handle.write_all(format!("{:?}\n", gc_content).as_bytes())?;
 
             Ok(())
         }

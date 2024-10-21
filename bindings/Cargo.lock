@@ -350,6 +350,7 @@ dependencies = [
  "bio",
  "clap",
  "flate2",
+ "rust-lapper",
 ]
 
 [[package]]
@@ -816,6 +817,15 @@ name = "regex-syntax"
 version = "0.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "adad44e29e4c806119491a7f06f03de4d1af22c3a680dd47f1e6e179439d1f56"
+
+[[package]]
+name = "rust-lapper"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ee43d8e721ac803031dbab6a944b957b49a3b11eadbc099880c8aaaebf23ed27"
+dependencies = [
+ "num-traits",
+]
 
 [[package]]
 name = "rustc_version"

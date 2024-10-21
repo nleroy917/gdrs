@@ -4,7 +4,7 @@ use anyhow::{ensure, Result};
 
 pub mod models;
 
-use models::{Dinucleotide, GenomeAssembly, RegionSet};
+use models::{Dinucleotide, GenomeAssembly, RegionSet, TSSIndex};
 
 pub fn calc_neighbor_distances(region_set: &RegionSet) -> Result<Vec<u32>> {
     // make sure that the regions are sorted
@@ -32,14 +32,16 @@ pub fn calc_neighbor_distances(region_set: &RegionSet) -> Result<Vec<u32>> {
     Ok(distances)
 }
 
-pub fn calc_gc_content(region_set: &RegionSet, genome: &GenomeAssembly) -> Result<f64> {
-    let mut gc_count: u32 = 0;
-    let mut total_count: u32 = 0;
-
+pub fn calc_gc_content(region_set: &RegionSet, genome: &GenomeAssembly) -> Result<Vec<f64>> {
     // for region in region_set
+    let mut gc_contents: Vec<f64> = vec![];
     for chr in region_set.iter_chroms() {
         for region in region_set.iter_regions(chr) {
+
+            let mut gc_count: u32 = 0;
+            let mut total_count: u32 = 0;
             let seq = genome.seq_from_region(region);
+
             match seq {
                 Ok(seq) => {
                     for base in seq {
@@ -51,6 +53,7 @@ pub fn calc_gc_content(region_set: &RegionSet, genome: &GenomeAssembly) -> Resul
                         }
                         total_count += 1;
                     }
+                    gc_contents.push(gc_count as f64 / total_count as f64);
                 }
                 Err(e) => {
                     return Err(anyhow::anyhow!(
@@ -65,7 +68,7 @@ pub fn calc_gc_content(region_set: &RegionSet, genome: &GenomeAssembly) -> Resul
         }
     }
 
-    Ok(gc_count as f64 / total_count as f64)
+    Ok(gc_contents)
 }
 
 pub fn calc_widths(region_set: &RegionSet) -> Result<Vec<u32>> {
@@ -103,14 +106,43 @@ pub fn calc_dinucl_freq(
     Ok(dinucl_freqs)
 }
 
-pub fn calc_tss_dist(
-    _region_set: &RegionSet
-) -> Result<()> {
-    Ok(())
+pub fn calc_tss_dist(region_set: &RegionSet, tss_index: &TSSIndex) -> Result<Vec<u32>> {
+
+    let mut tss_dists: Vec<u32> = Vec::with_capacity(region_set.len());
+
+    for chr in region_set.iter_chroms() {
+        if !tss_index.has_chr(chr) {
+            continue;
+        }
+        for region in region_set.iter_regions(chr) {
+            let tsses = tss_index.query(region);
+            ensure!(
+                tsses.is_some(),
+                format!(
+                    "No TSS's found for region: {}:{}-{}. Double-check your index!",
+                    region.chr, region.start, region.end
+                )
+            );
+
+            let midpoint = region.end - region.start;
+            
+            let dists = tsses.unwrap().into_iter().map(|tss| {
+                let tss_midpoint = tss.end - tss.start;
+                midpoint - tss_midpoint
+            });
+
+            tss_dists.push(dists.min().unwrap());
+        }
+    }
+
+    Ok(tss_dists)
 }
 
 pub mod prelude {
+    pub use super::calc_dinucl_freq;
     pub use super::calc_gc_content;
     pub use super::calc_neighbor_distances;
-    pub use super::models::{GenomeAssembly, Region, RegionSet};
+    pub use super::calc_widths;
+    pub use super::calc_tss_dist;
+    pub use super::models::{GenomeAssembly, Region, RegionSet, TSSIndex};
 }

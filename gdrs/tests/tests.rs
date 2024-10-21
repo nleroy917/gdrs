@@ -60,8 +60,8 @@ mod tests {
         let genome = GenomeAssembly::from_fasta(genome).unwrap();
 
         let gc_content = calc_gc_content(&region_set, &genome).unwrap();
-
-        assert!(gc_content >= 0.0);
+        println!("{:?}", gc_content);
+        assert!(gc_content[0] >= 0.0);
     }
 
     #[rstest]

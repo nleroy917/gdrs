@@ -18,6 +18,8 @@ pub fn py_calc_neighbor_distances(file: String) -> anyhow::Result<Vec<u32>> {
     let path = Path::new(&file);
     let rs = gdrs::models::RegionSet::from_bed(path)?;
 
+    let rs = rs.into_sorted();
+
     gdrs::calc_neighbor_distances(&rs)
 }
 

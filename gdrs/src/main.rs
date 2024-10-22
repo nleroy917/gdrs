@@ -29,6 +29,12 @@ fn build_gc_content_cli() -> Command {
         .about("Compute the gc content of a query region set")
         .arg(arg!(<path> "Path to bed file OR folder of bed files").required(true))
         .arg(arg!(-g --genome <GENOME> "genome assembly file").required(true))
+        .arg(
+            arg!(-u --ignore-unused-chroms "Ignore any non-standard chromosomes in the bedfile")
+                .required(false)
+                .num_args(0)
+                .id("ignore-unk-chroms"),
+        )
 }
 
 fn build_parser() -> Command {
@@ -92,6 +98,7 @@ fn main() -> Result<()> {
             let genome = matches
                 .get_one::<String>("genome")
                 .expect("Please specify a genome assembly file");
+            let ignore_unused_chroms = matches.contains_id("ignore-unk-chroms");
 
             // parse given region set
             let region_set = RegionSet::from_bed(Path::new(path_to_data))
@@ -104,7 +111,7 @@ fn main() -> Result<()> {
             })?;
 
             // compute gc content
-            let gc_content = calc_gc_content(&region_set, &genome).unwrap();
+            let gc_content = calc_gc_content(&region_set, &genome, ignore_unused_chroms).unwrap();
 
             // dump to std-out
             handle.write_all(format!("{:?}\n", gc_content).as_bytes())?;

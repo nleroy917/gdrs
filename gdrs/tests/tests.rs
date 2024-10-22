@@ -59,7 +59,7 @@ mod tests {
         let genome = Path::new("/Users/nathanleroy/genomes/hg38/hg38.fa");
         let genome = GenomeAssembly::from_fasta(genome).unwrap();
 
-        let gc_content = calc_gc_content(&region_set, &genome).unwrap();
+        let gc_content = calc_gc_content(&region_set, &genome, true).unwrap();
         println!("{:?}", gc_content);
         assert!(gc_content[0] >= 0.0);
     }

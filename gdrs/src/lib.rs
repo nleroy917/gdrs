@@ -40,7 +40,14 @@ pub fn calc_gc_content(
     // for region in region_set
     let mut gc_contents: Vec<f64> = vec![];
     for chr in region_set.iter_chroms() {
+
+        // check if the chrom is even in genome
+        if ignore_unk_chroms && !genome.contains_chr(chr) {
+            continue;
+        }
+
         for region in region_set.iter_regions(chr) {
+
             let mut gc_count: u32 = 0;
             let mut total_count: u32 = 0;
             let seq = genome.seq_from_region(region);

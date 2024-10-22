@@ -152,6 +152,11 @@ impl GenomeAssembly {
             )),
         }
     }
+
+    pub fn contains_chr(&self, chr: &str) -> bool {
+        self.seq_map.contains_key(chr)
+    }
+
 }
 
 #[derive(PartialEq, Eq, Hash)]

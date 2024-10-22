@@ -42,3 +42,13 @@ pub fn py_calc_dinucleotide_frequency(
 
     Ok(freq_map)
 }
+
+#[pyfunction(name = "calc_widths")]
+pub fn py_calc_widths(
+    file: String
+) -> anyhow::Result<Vec<u32>> {
+    let path = Path::new(&file);
+    let rs = gdrs::models::RegionSet::from_bed(path)?;
+
+    gdrs::calc_widths(&rs)
+}

@@ -114,7 +114,10 @@ fn main() -> Result<()> {
             let gc_content = calc_gc_content(&region_set, &genome, ignore_unused_chroms).unwrap();
 
             // dump to std-out
-            handle.write_all(format!("{:?}\n", gc_content).as_bytes())?;
+            // handle.write_all(format!("{:?}\n", gc_content).as_bytes())?;
+            for gc in gc_content {
+                handle.write_all(format!("{:.4}\n", gc).as_bytes())?;
+            }
 
             Ok(())
         }
